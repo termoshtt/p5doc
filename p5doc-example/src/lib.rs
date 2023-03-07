@@ -1,3 +1,4 @@
+#[cfg_attr(doc, p5doc::p5doc)]
 /// Some function!
 ///
 /// Before
