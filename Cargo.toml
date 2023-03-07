@@ -1,8 +1,5 @@
-[package]
-name = "p5js-rustdoc-testing"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace]
+members = [
+  "p5doc",
+  "p5doc-example",
+]
