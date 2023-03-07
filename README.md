@@ -1,4 +1,6 @@
 # p5doc
+[![main](https://img.shields.io/badge/docs-main-blue)](https://termoshtt.github.io/p5doc/p5doc_example/index.html)
+
 WIP: p5.js within rustdoc
 
 License
