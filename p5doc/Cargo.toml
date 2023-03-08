@@ -13,3 +13,4 @@ quote = "1.0.9"
 proc-macro2 = "1.0.28"
 syn = { version = "1.0.75", features = ["full", "extra-traits"] }
 anyhow = "1.0.69"
+regex = "1.7.1"

@@ -38,32 +38,58 @@ fn p5doc2(item: TokenStream2) -> Result<TokenStream2> {
 }
 
 fn convert(attrs: &mut Vec<syn::Attribute>) {
+    // True if `attr` between quote start(```p5doc) and end (```)
+    let mut in_quote = false;
     for attr in attrs {
         let path = &attr.path;
         // if attr is in `#[doc = literal]` form
-        if path.segments.len() == 1 && path.segments[0].ident == "doc" {
-            let mut iter = attr.tokens.clone().into_iter();
-            match (iter.next(), iter.next(), iter.next()) {
-                (Some(_eq), Some(lit), None) => {
-                    // literal includes `"`
-                    let inner = lit.to_string().trim_matches('"').trim().to_string();
-                    if inner.starts_with("```p5doc") {
-                        dbg!(inner);
-                    }
-                }
-                _ => {}
+        if path.segments.len() != 1 || path.segments[0].ident != "doc" {
+            continue;
+        }
+
+        let mut iter = attr.tokens.clone().into_iter();
+        let doc = match (iter.next(), iter.next(), iter.next()) {
+            (Some(_eq), Some(lit), None) => {
+                // literal includes `"`
+                lit.to_string().trim_matches('"').trim().to_string()
             }
+            _ => continue,
+        };
+
+        let start_tag = "```p5doc";
+        if doc.starts_with(start_tag) {
+            let re = regex::Regex::new(r"(\d*)x(\d*)").unwrap();
+            let (width, height) = re
+                .captures(&doc)
+                .and_then(|cap| {
+                    let width = cap.get(1)?.as_str();
+                    let height = cap.get(2)?.as_str();
+                    Some((width.parse().ok()?, height.parse().ok()?))
+                })
+                .expect("p5doc must have width and height like `200x100` form");
+            let setup = setup(width, height);
+            dbg!(setup.to_string());
+            in_quote = true;
+        }
+
+        if in_quote && doc.ends_with("```") {
+            // TODO
+            return;
         }
     }
 }
 
 const CDN_P5JS: &str = r#"<script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>"#;
+const CANVAS_ID: &str = "p5doc";
 
-fn setup(width: u64, height: u64, id: &str) -> TokenStream2 {
-    quote! {
-        function setup() {
-          var canvas = createCanvas(#width, #height);
-          canvas.parent(#id);
-        }
-    }
+// Create `setup()` for p5.js global mode
+fn setup(width: u64, height: u64) -> String {
+    format!(
+        r#"
+        function setup() {{
+          var canvas = createCanvas({width}, {height});
+          canvas.parent("{CANVAS_ID}");
+        }}
+        "#
+    )
 }
