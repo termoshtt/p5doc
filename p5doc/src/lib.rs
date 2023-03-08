@@ -1,16 +1,17 @@
 //! p5doc proc-macro
 
-use anyhow::Result;
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
+use proc_macro_error::*;
 use quote::quote;
 
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn p5doc(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    p5doc2(item.into()).unwrap().into()
+    p5doc2(item.into()).into()
 }
 
-fn p5doc2(item: TokenStream2) -> Result<TokenStream2> {
+fn p5doc2(item: TokenStream2) -> TokenStream2 {
     if let Ok(mut item) = syn::parse2(item.clone()) {
         match item {
             // Items may have `#[doc]` attributes
@@ -28,13 +29,13 @@ fn p5doc2(item: TokenStream2) -> Result<TokenStream2> {
             | syn::Item::Type(syn::ItemType { ref mut attrs, .. })
             | syn::Item::Union(syn::ItemUnion { ref mut attrs, .. }) => {
                 convert(attrs);
-                return Ok(quote! { #item });
+                return quote! { #item };
             }
             _ => {}
         }
     }
 
-    Ok(item)
+    item
 }
 
 fn convert(attrs: &mut Vec<syn::Attribute>) {
