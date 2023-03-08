@@ -2,8 +2,11 @@
 name = "p5doc"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
+description = "p5.js diagram within rustdoc"
+documentation = "https://termoshtt.github.io/p5doc/p5doc"
+repository = "https://github.com/termoshtt/p5doc"
+license = "MIT OR Apache-2.0"
 
 [lib]
 proc-macro = true
