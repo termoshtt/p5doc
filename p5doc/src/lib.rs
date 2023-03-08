@@ -56,3 +56,14 @@ fn convert(attrs: &mut Vec<syn::Attribute>) {
         }
     }
 }
+
+const CDN_P5JS: &str = r#"<script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>"#;
+
+fn setup(width: u64, height: u64, id: &str) -> TokenStream2 {
+    quote! {
+        function setup() {
+          var canvas = createCanvas(#width, #height);
+          canvas.parent(#id);
+        }
+    }
+}
