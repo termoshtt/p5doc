@@ -68,13 +68,16 @@ fn convert(attrs: &mut Vec<syn::Attribute>) {
                     Some((width.parse().ok()?, height.parse().ok()?))
                 })
                 .expect("p5doc must have width and height like `200x100` form");
-            let setup = setup(width, height);
-            dbg!(setup.to_string());
+            let lit = format!(
+                r#"<div id={CANVAS_ID}></div> {CDN_P5JS} <script> {} function draw() {{"#,
+                setup(width, height)
+            );
+            attr.tokens = quote! { = #lit };
             in_quote = true;
         }
 
         if in_quote && doc.ends_with("```") {
-            // TODO
+            attr.tokens = quote! { = "} </script>"};
             return;
         }
     }
@@ -86,11 +89,6 @@ const CANVAS_ID: &str = "p5doc";
 // Create `setup()` for p5.js global mode
 fn setup(width: u64, height: u64) -> String {
     format!(
-        r#"
-        function setup() {{
-          var canvas = createCanvas({width}, {height});
-          canvas.parent("{CANVAS_ID}");
-        }}
-        "#
+        r#"function setup() {{ var canvas = createCanvas({width}, {height}); canvas.parent("{CANVAS_ID}"); }}"#
     )
 }
